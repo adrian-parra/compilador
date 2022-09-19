@@ -121,7 +121,7 @@ if(archivo == NULL){
 
         //FUNCION AUTOMATA PARA VALIDAR SI LOS CARACTERES SIGUIENTES FORMAN
         //UN IDENTIFICADOR O PALABRA RESERVADA
-        obtenerIdentificador();
+        obtenerIdentificador();//PUNTERO DE LECTURA DE ARCHIVO ENVIADO COMO VARIABLE GLOBAL
 
         //ESTRUCTURA DE TIPO TOKEN
         //ESTA EN PRUEBAS NO FUNCIONAL
@@ -182,21 +182,22 @@ void obtenerIdentificador(){
 
         }else if(checarAlfabeto(alfabetoNumeros ,caracter)){
             estado = '2';
-            printf("%c" ,caracter);
+            concatenarCharEnString();
         }else {
+            //ESTADO DE ACEPTACION (CORTE DE CADENA)
             estado = '3';
         }
     }
 }
 
 //FUNCION PARA CONCATENAR CHAR EN STRING
-void concatenarCharEnString(){
+void concatenarCharEnString(){ //UTILIZA VARIABLES GLOBALES (pToken , caracter)
      *pToken = caracter;
       pToken++;
 }
 
 //LIMPIAR ARRAY CADENA
-void limpiarArrayCadena(){
+void limpiarArrayCadena(){ //UTILIZA VARIABLE GLOBAL (tokenCaracter)
     int cont = 0;
 while(cont < 50){
     tokenCaracter[cont]=0;
