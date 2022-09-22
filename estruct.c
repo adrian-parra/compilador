@@ -11,7 +11,8 @@ typedef enum {
 id = 1,
 sim = 2,
 num = 3,
-palres = 4
+palres = 4,
+estadoAceptacion = 5
 }TypeToken;
 
 //NUEVA ESTRUCTURA
@@ -40,7 +41,7 @@ void limpiarArrayCadena();
 //DECLARACION DE ALFABETOS PARA AUTOMATAS
 char alfabetoLetras[] = "ABCDEFGHIJKLMNÑOPQRSTVXYZabcdefghijklmnñopqrstvxyz";
 char alfabetoNumeros[] = "0123456789";
-char alfabetoSimbolos[] = ";.-_()/=?{}:!#$%&/¿¡+*][ ";
+char alfabetoSimbolos[] = ";.-_()/=?{}:!#$%&/¿'¡+*][ ";
 int indice; //VARIABLE ENCARGADA DE SABER EL INDICE EN ALFABETO
 
 //DECLARACION DE VARIABLE DE TIPO FILE PARA TRABAJAR CON ARCHIVOS DE TEXTO
@@ -55,6 +56,11 @@ char estado;
 //VARIABLE DONDE SE GUARDAN LOS TOKEN CARCTER POR CARACTER
 char tokenCaracter[50];
 char * pToken;//VARIABLE QUE SE COMPORTARA COMO PUNTERO PARA 'tokenCaracter'
+
+//VARIABLE BOOL ENCARGADA DE DECIRLE AL PUNTERO
+//DEL ARCHIVO DE TEXTO QUE VIENE DE UNA ACEPTACION DE UN AUTOMATA
+//POR LO TANTO EL PUNTERO NO SE INCREMENTA...
+bool VieneDeEstadoAceptacion = false;
 
 
 
@@ -101,11 +107,17 @@ if(archivo == NULL){
 }else{
     //ARCHIVO SI SE PUDO LEER
 
+
+
     //WHILE PARA RECORRER EL ARCHIVO
     while(feof(archivo) == 0){
-        caracter=fgetc(archivo);
 
-        //LIMPIAMOS EL ARRAY DE LA CADENA 'tokenCaracter'
+            //IF PARA SABER SI EL PUNTERO REGRESO DE UN
+            //AUTOMATA DE SU ESTADO DE ACEPTACION
+            if(VieneDeEstadoAceptacion){VieneDeEstadoAceptacion = false;}
+            else {caracter=fgetc(archivo);}//PUNTERO SE INCREMETA Y ASIGNO EL SIGUIENTE CARACTER
+
+              //LIMPIAMOS EL ARRAY DE LA CADENA 'tokenCaracter'
         limpiarArrayCadena();
 
         //ASIGNAMOS PUNBTERO A VARIABLE
@@ -136,15 +148,48 @@ if(archivo == NULL){
        }
 
        //CHECAR SI CARRACTER ES UN DIJITO
-       if(checarAlfabeto(alfabetoSimbolos , caracter)){
+       else if(checarAlfabeto(alfabetoSimbolos , caracter)){
+            estado = '2';
             printf("%c",'\n');
-            printf("%c" ,caracter);
+        //AGREGAR EL CARACTER EN ARRAY CADENA
+        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
+
+
+        obtenerSimbolos();
+
+         //ESTRUCTURA DE TIPO TOKEN
+        //ESTA EN PRUEBAS NO FUNCIONAL
+        Token token[1];
+        token[0].tipoToken = id;
+        token[0].lexema = tokenCaracter;
+        token[0].valor= 0;
+
+        printf(token[0].lexema);
+
+
        }
 
-       //CHECAR SI CARACTER ES UN SIMBOLO
-       if(checarAlfabeto(alfabetoNumeros , caracter)){
+       //CHECAR SI CARACTER ES UN DIGITO
+       else if(checarAlfabeto(alfabetoNumeros , caracter)){
+            estado = '2';
             printf("%c",'\n');
-            printf("%c" ,caracter);
+
+            //AGREGAR EL CARACTER EN ARRAY CADENA
+        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
+
+        obtenerDigitos();
+
+        //ESTRUCTURA DE TIPO TOKEN
+        //ESTA EN PRUEBAS NO FUNCIONAL
+        Token token[1];
+        token[0].tipoToken = id;
+        token[0].lexema = tokenCaracter;
+        token[0].valor= 0;
+
+        printf(token[0].lexema);
+
+
+
        }
 
     }
@@ -170,22 +215,65 @@ bool checarAlfabeto(char alfabeto[] , char caracter){
     return false;
 }
 
-//FUNCION AUTOMATA PARA OBTENER IDENTIFICADOR O PALABRA RESERVADA
-void obtenerIdentificador(){
+//FUNCION AUTOMATA PARA SIMBOLOS
+void obtenerSimbolos(){
+
+          //WHILE QUE RECORRE ARCHIVO CARACTER POR CARACTER
+
     while(feof(archivo) == 0 && estado == '1' || estado == '2'){
-        caracter=fgetc(archivo);
+        caracter=fgetc(archivo); //VARIABLE ENCARGADA DE OBTENER CARACTER QUE ENTRO
 
-        //VERIFICAR SI EL SIGUINETE CARACTER ES LETRA O NUMERO
-        if(checarAlfabeto(alfabetoLetras , caracter)){
-            estado = '1';
-            concatenarCharEnString();
-
-        }else if(checarAlfabeto(alfabetoNumeros ,caracter)){
-            estado = '2';
-            concatenarCharEnString();
+        //VERIFICAR SI EL SIGUINETE ES NUMERO
+       if(checarAlfabeto(alfabetoSimbolos ,caracter)){
+            estado = '2'; //CAMBIO DE ESTADO A 2 = DIJITOS
+            concatenarCharEnString(); //CONCATENO EL CARACTER QUE ENTRO EN ARRAY (tokenCaracter)
         }else {
             //ESTADO DE ACEPTACION (CORTE DE CADENA)
             estado = '3';
+            VieneDeEstadoAceptacion = true;
+        }
+    }
+}
+
+//FUNCION AUTOMATA PARA OBTENER DIGITOS
+    void obtenerDigitos(){
+
+         //WHILE QUE RECORRE ARCHIVO CARACTER POR CARACTER
+
+    while(feof(archivo) == 0 && estado == '1' || estado == '2'){
+        caracter=fgetc(archivo); //VARIABLE ENCARGADA DE OBTENER CARACTER QUE ENTRO
+
+        //VERIFICAR SI EL SIGUINETE ES NUMERO
+       if(checarAlfabeto(alfabetoNumeros ,caracter)){
+            estado = '2'; //CAMBIO DE ESTADO A 2 = DIJITOS
+            concatenarCharEnString(); //CONCATENO EL CARACTER QUE ENTRO EN ARRAY (tokenCaracter)
+        }else {
+            //ESTADO DE ACEPTACION (CORTE DE CADENA)
+            estado = '3';
+            VieneDeEstadoAceptacion = true;
+        }
+    }
+    }
+
+//FUNCION AUTOMATA PARA OBTENER IDENTIFICADOR O PALABRA RESERVADA
+void obtenerIdentificador(){
+    //WHILE QUE RECORRE ARCHIVO CARACTER POR CARACTER
+
+    while(feof(archivo) == 0 && estado == '1' || estado == '2'){
+        caracter=fgetc(archivo); //VARIABLE ENCARGADA DE OBTENER CARACTER QUE ENTRO
+
+        //VERIFICAR SI EL SIGUINETE CARACTER ES LETRA O NUMERO
+        if(checarAlfabeto(alfabetoLetras , caracter)){
+            estado = '1'; //CAMBIO DE ESTADO A 1 = LETRAS
+            concatenarCharEnString(); //CONCATENO EL CARACTER QUE ENTRO EN ARRAY (tokenCaracter)
+
+        }else if(checarAlfabeto(alfabetoNumeros ,caracter)){
+            estado = '2'; //CAMBIO DE ESTADO A 2 = DIJITOS
+            concatenarCharEnString(); //CONCATENO EL CARACTER QUE ENTRO EN ARRAY (tokenCaracter)
+        }else {
+            //ESTADO DE ACEPTACION (CORTE DE CADENA)
+            estado = '3';
+            VieneDeEstadoAceptacion = true;
         }
     }
 }

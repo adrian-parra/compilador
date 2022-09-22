@@ -1,2 +1,3 @@
-strin valor20 = "12";
-int val1 = 12; 
+string valor20 = '12';
+string valor = '12';
+string valo = '12';
