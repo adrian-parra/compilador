@@ -5,7 +5,12 @@
 
 #include <string.h>
 
+//TABLA DE PALABRAS RESERVADAS
+#define FILAS 11
+#define LONGITUD_CADENA 20
 
+ int result;
+char	palabrasRes[FILAS][LONGITUD_CADENA] = { "Inicio", "Fin", "Entero", "Real", "Cadena", "Caracter","Si", "Si no", "Para", "Imprimir", "Entrada"};
 //CONSTANTES NUMERICAS
 typedef enum {
 id,
@@ -31,14 +36,14 @@ int valor;
 //NODOS PARA LA LISTA DOBLEMENTE ENLAZADA
 struct nodo {
 
-struct Token *info;
+struct Token info;
 struct nodo *izq;
 struct nodo *der;
 };
 
 
 struct nodo *raiz;
-struct nodo * actual;
+struct nodo *actual;
 
 
 
@@ -86,7 +91,7 @@ void limpiarArrayCadena();
 //DECLARACION DE ALFABETOS PARA AUTOMATAS
 char alfabetoLetras[] = "ABCDEFGHIJKLMNÑOPQRSTVXYZabcdefghijklmnñopqrstvxyz";
 char alfabetoNumeros[] = "0123456789";
-char PalabrasReservadas[] = "0123456789";
+char PalabrasReservadas[];
 char alfabetoSimbolos[] = {';',' ','$','+','-','|', '(', ')', '{','}'};
 char alfabetoLogicos[] = {'|','&'};
 char alfabetoRelacionales[] = {'<','>', '='};
@@ -115,30 +120,6 @@ bool VieneDeEstadoAceptacion = false;
 
 //FUNCION PRINCIPAL DEL PROGRAMA
 main() {
-/*
-Token token[2];
-token[0].tipoToken = palres;
-token[0].lexema = "int";
-token[0].valor= 0;
-token[1].tipoToken = palres;
-token[1].lexema="val1";
-token[1].valor= 0;
-printf("%d",token[1].tipoToken);
-//printf(token[0].lexema);
-return 0;
-*/
-
-
-//COMPARAR CADENA
-/*
-if(!strcmp(cadena,"la")){
-    printf("hola");
-}else{
-    printf(cadena);
-}*/
-
-
-
 
 
 
@@ -181,17 +162,60 @@ if(archivo == NULL){
         obtenerIdentificador();//PUNTERO DE LECTURA DE ARCHIVO ENVIADO COMO VARIABLE GLOBAL
 
         //ESTRUCTURA DE TIPO TOKEN
+            //ESTRUCTURA DE TIPO TOKEN
+        //ESTA EN PRUEBAS NO FUNCIONAL
+        Token *token;
+        tokentipoToken = sim;
+        token.lexema = tokenCaracter;
+        token.valor= 0;
+
+        printf(token.lexema);
+        //INSERTARLO EN LA LISTA ENLAZADA
+        insertar(token);
+
+
+
+
+         for(int i = 0; i <= 11; i++){
+
+
+          // VERIFICA SI ES UNA PALABRA RESERVADA
+            result = strcmp(token.lexema,palabrasRes[i]);
+
+              if(result == 0){
+                   token.tipoToken  = palres;
+
+              }
+
+         }
+
+
+
+
+       }
+
+         else if(checarAlfabeto(alfabetoSimbolos , caracter) && (caracter == '>') || (caracter == '<') || (caracter == '=')){
+            estado = '2';
+            printf("%c",'\n');
+        //AGREGAR EL CARACTER EN ARRAY CADENA
+        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
+
+
+        obtenerRelacionales();
+
+         //ESTRUCTURA DE TIPO TOKEN
         //ESTA EN PRUEBAS NO FUNCIONAL
         Token token[1];
-        token[0].tipoToken = id;
+        token[0].tipoToken = sim;
         token[0].lexema = tokenCaracter;
         token[0].valor= 0;
 
         printf(token[0].lexema);
-
         //INSERTARLO EN LA LISTA ENLAZADA
         insertar(token[0].lexema);
+
        }
+
  else if(checarAlfabeto(alfabetoCadena , caracter)){
             estado = '2';
             printf("%c",'\n');
@@ -243,27 +267,6 @@ if(archivo == NULL){
 
        }
 
-    else if(checarAlfabeto(alfabetoSimbolos , caracter) && (caracter == '>') || (caracter == '<') || (caracter == '=')){
-            estado = '2';
-            printf("%c",'\n');
-        //AGREGAR EL CARACTER EN ARRAY CADENA
-        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
-
-
-        obtenerRelacionales();
-
-         //ESTRUCTURA DE TIPO TOKEN
-        //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token[1];
-        token[0].tipoToken = sim;
-        token[0].lexema = tokenCaracter;
-        token[0].valor= 0;
-
-        printf(token[0].lexema);
-        //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token[0].lexema);
-
-       }
 
        //CHECAR SI CARRACTER ES UN DIJITO
        else if(checarAlfabeto(alfabetoSimbolos , caracter)){
@@ -327,42 +330,7 @@ if(archivo == NULL){
 return 0;
 }
 
-//LISTA
-void insertar(struct Token *lexema)
-{
 
-    struct nodo * nuevo;
-
-    nuevo = malloc(sizeof(struct nodo));
-
-
-    nuevo->info = lexema;
-    nuevo->izq = NULL;
-    nuevo->der = NULL;
-
-    if(raiz == NULL){
-
-    raiz = nuevo;
-    actual = nuevo;
-
-    printf(actual);
-
-   }
-
-    else{
-
-    nuevo->izq = actual;
-    actual->der = nuevo;
-    actual = nuevo;
-
-
-   }
-
-
-
-
-
-}
 
 //FUNCION PARA CHECAR CARACTER EN ALFABETO
 bool checarAlfabeto(char alfabeto[] , char caracter){
@@ -514,6 +482,8 @@ void concatenarCharEnString(){ //UTILIZA VARIABLES GLOBALES (pToken , caracter)
       pToken++;
 }
 
+
+
 //LIMPIAR ARRAY CADENA
 void limpiarArrayCadena(){ //UTILIZA VARIABLE GLOBAL (tokenCaracter)
     int cont = 0;
@@ -523,3 +493,44 @@ while(cont < 50){
 }
 
 }
+
+//LISTA
+void insertar(struct Token *token)
+{
+    //printf();
+
+
+
+    struct nodo *nuevo;
+
+    nuevo = malloc(sizeof(struct nodo));
+
+
+    nuevo->info = token;
+    nuevo->izq = NULL;
+    nuevo->der = NULL;
+
+    if(raiz == NULL){
+
+    raiz = nuevo;
+    actual = nuevo;
+
+
+
+
+   }
+
+    else{
+
+    nuevo->izq = actual;
+    actual->der = nuevo;
+    actual = nuevo;
+
+
+   }
+
+
+}
+
+
+
