@@ -1,3 +1,6 @@
-string valor20 = '12';
-string valor = '12';
-string valo = '12';
+ssssstring valor20 = "uuuuup"
+string valor = "hola"
+
+if(valor == "hola"){
+
+}

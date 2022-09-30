@@ -27,7 +27,7 @@ estadoAceptacion
 //NUEVA ESTRUCTURA
 typedef struct {
 TypeToken tipoToken;
-char * lexema;
+char *lexema;
 int valor;
 }Token;
 
@@ -36,7 +36,7 @@ int valor;
 //NODOS PARA LA LISTA DOBLEMENTE ENLAZADA
 struct nodo {
 
-struct Token info;
+struct Token *info;
 struct nodo *izq;
 struct nodo *der;
 };
@@ -164,15 +164,16 @@ if(archivo == NULL){
         //ESTRUCTURA DE TIPO TOKEN
             //ESTRUCTURA DE TIPO TOKEN
         //ESTA EN PRUEBAS NO FUNCIONAL
-        Token *token;
-        tokentipoToken = sim;
+
+        Token token;
         token.lexema = tokenCaracter;
-        token.valor= 0;
+        //token.valor= 0;
 
         printf(token.lexema);
-        //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token);
 
+
+
+       // printf(tokenCaracter);
 
 
 
@@ -183,11 +184,14 @@ if(archivo == NULL){
             result = strcmp(token.lexema,palabrasRes[i]);
 
               if(result == 0){
-                   token.tipoToken  = palres;
+                   token.tipoToken = palres;
 
               }
 
          }
+
+         //INSERTARLO EN LA LISTA ENLAZADA
+       insertar(token);
 
 
 
@@ -205,14 +209,15 @@ if(archivo == NULL){
 
          //ESTRUCTURA DE TIPO TOKEN
         //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token[1];
-        token[0].tipoToken = sim;
-        token[0].lexema = tokenCaracter;
-        token[0].valor= 0;
 
-        printf(token[0].lexema);
+        Token token;
+        token.tipoToken = sim;
+        token.lexema = tokenCaracter;
+        token.valor= 0;
+
+        printf(token.lexema);
         //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token[0].lexema);
+        insertar(token);
 
        }
 
@@ -229,15 +234,15 @@ if(archivo == NULL){
 
          //ESTRUCTURA DE TIPO TOKEN
         //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token[1];
-        token[0].tipoToken = sim;
-        token[0].lexema = tokenCaracter;
-        token[0].valor= 0;
+        Token token;
+        token.tipoToken = sim;
+        token.lexema = tokenCaracter;
+        token.valor= 0;
 
-        printf(token[0].lexema);
+        printf(token.lexema);
 
         //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token[0].lexema);
+        insertar(token);
        }
 
 
@@ -254,15 +259,15 @@ if(archivo == NULL){
 
         //ESTRUCTURA DE TIPO TOKEN
         //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token[1];
-        token[0].tipoToken = num;
-        token[0].lexema = tokenCaracter;
-        token[0].valor= 0;
+        Token token;
+        token.tipoToken = num;
+        token.lexema = tokenCaracter;
+        token.valor= 0;
 
-        printf(token[0].lexema);
+        printf(token.lexema);
 
         //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token[0].lexema);
+        insertar(token);
 
 
        }
@@ -279,14 +284,15 @@ if(archivo == NULL){
 
          //ESTRUCTURA DE TIPO TOKEN
         //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token[1];
-        token[0].tipoToken = sim;
-        token[0].lexema = tokenCaracter;
-        token[0].valor= 0;
+        Token token;
+        token.tipoToken = sim;
+        token.lexema = tokenCaracter;
+        token.valor= 0;
 
-        printf(token[0].lexema);
+        printf(token.lexema);
         //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token[0].lexema);
+        insertar(token);
+        //printf(tokenCaracter);
 
        }
 
@@ -306,16 +312,16 @@ if(archivo == NULL){
 
         //ESTRUCTURA DE TIPO TOKEN
         //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token[1];
-        token[0].tipoToken = num;
-        token[0].lexema = tokenCaracter;
-        token[0].valor= 0;
+        Token token;
+        token.tipoToken = num;
+        token.lexema = tokenCaracter;
+        token.valor= 0;
 
-        printf(token[0].lexema);
+        printf(token.lexema);
 
 
         //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token[0].lexema);
+        insertar(token);
        }
 
 
