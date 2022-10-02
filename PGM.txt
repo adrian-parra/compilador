@@ -1,6 +1,2 @@
-ssssstring valor20 = "uuuuup"
-string valor = "hola"
-
-if(valor == "hola"){
-
-}
+Inicio
+Entero Val1 = 5;

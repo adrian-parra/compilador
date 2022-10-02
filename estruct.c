@@ -8,75 +8,59 @@
 //TABLA DE PALABRAS RESERVADAS
 #define FILAS 11
 #define LONGITUD_CADENA 20
+#define LONGITUD_LEXEMA 100
 
  int result;
-char	palabrasRes[FILAS][LONGITUD_CADENA] = { "Inicio", "Fin", "Entero", "Real", "Cadena", "Caracter","Si", "Si no", "Para", "Imprimir", "Entrada"};
+
 //CONSTANTES NUMERICAS
 typedef enum {
 id,
 sim,
 simr,
-sima,
 siml,
 cad,
 num,
 palres,
-estadoAceptacion
 }TypeToken;
 
-//NUEVA ESTRUCTURA
-typedef struct {
+//NUEVA ESTRUCTURA TIPO TOKEN
+typedef struct Token {
 TypeToken tipoToken;
-char *lexema;
+char lexema[LONGITUD_LEXEMA];
 int valor;
-}Token;
+}TOKEN;
 
 
 
 //NODOS PARA LA LISTA DOBLEMENTE ENLAZADA
-struct nodo {
-
-struct Token *info;
+typedef struct nodo {
+struct Token info;
 struct nodo *izq;
 struct nodo *der;
-};
+}NODO;
 
 
 struct nodo *raiz;
 struct nodo *actual;
 
 
-
-
-
-
-
-
 //DECLARACION DE FUNCION AUTOMATA PARA OBTENER IDENTIFICADOR
 void obtenerIdentificador();
-
 
 //DECLARACION DE FUNCION AUTOMATA PARA OBTENER SIMBOLOS
 void obtenerSimbolos();
 
-
 //DECLARACION DE FUNCION AUTOMATA PARA OBTENER DIGITOS
 void obtenerDigitos();
-
 
 //DECLARACION DE FUNCION AUTOMATA PARA OBTENER SIMBOLOS RELACIONALES
 void obtenerRelacionales();
 
-
-
 //DECLARACION DE FUNCION AUTOMATA PARA OBTENER SIMBOLOS LOGICOS
 void obtenerLogicos();
 
-
 //DECLARACION DE FUNCION AUTOMATA PARA OBTENER CADENAS
 void obtenerCadena();
-
-
 
 //DECLARACION DE FUNCION PARA CHECAR CARACTER CON ALFABETO
 bool checarAlfabeto(char alfabeto[] , char caracter);
@@ -87,11 +71,23 @@ void concatenarCharEnString();
 //LIMPIAR ARRAY DE CADENAS
 void limpiarArrayCadena();
 
+//FUNCION PÁRA CREAR NODO
+NODO* CrearNodo(TOKEN token);
+
+//INSERTAR TOKEN EN LISTA ENLAZADA
+void insertar(TOKEN token);
+
+//FUNCION PARA RECORRER LISTA Y MOSTRAR EN PANTALLA LOS DATOS
+void ImprimirLista();
+
+//FUNCION PARA RECORRER LISTA Y MOSTRAR EN PANTALLA LOS DATOS (DE MANERA INVERSA)
+void ImprimirListaRev();
+
 
 //DECLARACION DE ALFABETOS PARA AUTOMATAS
-char alfabetoLetras[] = "ABCDEFGHIJKLMNÑOPQRSTVXYZabcdefghijklmnñopqrstvxyz";
+char alfabetoLetras[] = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZabcdefghijklmnñopqrstuvxyz";
 char alfabetoNumeros[] = "0123456789";
-char PalabrasReservadas[];
+char palabrasRes[FILAS][LONGITUD_CADENA] = { "Inicio", "Fin", "Entero", "Real", "Cadena", "Caracter","Si", "Sino", "Para", "Imprimir", "Entrada"};
 char alfabetoSimbolos[] = {';',' ','$','+','-','|', '(', ')', '{','}'};
 char alfabetoLogicos[] = {'|','&'};
 char alfabetoRelacionales[] = {'<','>', '='};
@@ -108,8 +104,8 @@ char caracter;
 char estado;
 
 //VARIABLE DONDE SE GUARDAN LOS TOKEN CARCTER POR CARACTER
-char tokenCaracter[50];
-char * pToken;//VARIABLE QUE SE COMPORTARA COMO PUNTERO PARA 'tokenCaracter'
+char tokenCaracter[LONGITUD_LEXEMA];
+char *pToken;//VARIABLE QUE SE COMPORTARA COMO PUNTERO PARA 'tokenCaracter'
 
 //VARIABLE BOOL ENCARGADA DE DECIRLE AL PUNTERO
 //DEL ARCHIVO DE TEXTO QUE VIENE DE UNA ACEPTACION DE UN AUTOMATA
@@ -121,220 +117,162 @@ bool VieneDeEstadoAceptacion = false;
 //FUNCION PRINCIPAL DEL PROGRAMA
 main() {
 
+    //ABRIMOS ARCHIVO PARA LEERLO
+    archivo=fopen("PGM.txt","r");
 
+    //VALIDACION PARA SABER SI SE PUEDE LEER DICHO ARCHIVO
+    if(archivo == NULL){
+        printf("Error en la apertura del archivo.");
+    }else{
+        //ARCHIVO SI SE PUDO LEER
 
-
-//ABRIMOS ARCHIVO PARA LEERLO
-archivo=fopen("PGM.txt","r");
-
-//VALIDACION PARA SABER SI SE PUEDE LEER DICHO ARCHIVO
-if(archivo == NULL){
-    printf("Error en la apertura del archivo.");
-}else{
-    //ARCHIVO SI SE PUDO LEER
-
-
-
-    //WHILE PARA RECORRER EL ARCHIVO
-    while(feof(archivo) == 0){
+        //WHILE PARA RECORRER EL ARCHIVO DE TEXTO
+        while(feof(archivo) == 0){
 
             //IF PARA SABER SI EL PUNTERO REGRESO DE UN
             //AUTOMATA DE SU ESTADO DE ACEPTACION
             if(VieneDeEstadoAceptacion){VieneDeEstadoAceptacion = false;}
             else {caracter=fgetc(archivo);}//PUNTERO SE INCREMETA Y ASIGNO EL SIGUIENTE CARACTER
 
-              //LIMPIAMOS EL ARRAY DE LA CADENA 'tokenCaracter'
-        limpiarArrayCadena();
+            //LIMPIAMOS EL ARRAY DE LA CADENA 'tokenCaracter'
+            limpiarArrayCadena();
 
-        //ASIGNAMOS PUNBTERO A VARIABLE
-        pToken = tokenCaracter;
+            //ASIGNAMOS PUNBTERO A VARIABLE (espacio en memoria compartido)
+            pToken = tokenCaracter;
 
-        //CHECAR SI CARACTER QUE ENTRO ES UNA LETRA
-       if(checarAlfabeto(alfabetoLetras ,caracter)){
-        estado = '1';
-        printf("%c",'\n');
+            //CHECAR SI CARACTER QUE ENTRO ES UNA LETRA
+           if(checarAlfabeto(alfabetoLetras ,caracter)){
+                estado = '1';
+                //AGREGAR EL CARACTER EN ARRAY CADENA
+                concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
 
-        //AGREGAR EL CARACTER EN ARRAY CADENA
-        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
+                //FUNCION AUTOMATA PARA VALIDAR SI LOS CARACTERES SIGUIENTES FORMAN
+                //UN IDENTIFICADOR O PALABRA RESERVADA
+                obtenerIdentificador();//PUNTERO DE LECTURA DE ARCHIVO ENVIADO COMO VARIABLE GLOBAL
 
-        //FUNCION AUTOMATA PARA VALIDAR SI LOS CARACTERES SIGUIENTES FORMAN
-        //UN IDENTIFICADOR O PALABRA RESERVADA
-        obtenerIdentificador();//PUNTERO DE LECTURA DE ARCHIVO ENVIADO COMO VARIABLE GLOBAL
+                //ESTRUCTURA DE TIPO TOKEN
+                TOKEN token;
+                strcpy(token.lexema, tokenCaracter);
+                token.valor= 0;
+                token.tipoToken = id;
 
-        //ESTRUCTURA DE TIPO TOKEN
-            //ESTRUCTURA DE TIPO TOKEN
-        //ESTA EN PRUEBAS NO FUNCIONAL
+                 for(int i = 0; i <= 11; i++){
 
-        Token token;
-        token.lexema = tokenCaracter;
-        //token.valor= 0;
+                  // VERIFICA SI ES UNA PALABRA RESERVADA
+                    result = strcmp(token.lexema,palabrasRes[i]);
 
-        printf(token.lexema);
+                      if(result == 0){
+                           token.tipoToken = palres;
 
+                      }
+                 }
 
+                //INSERTARLO EN LA LISTA ENLAZADA
+                insertar(token);
+            //CHECAR SI CARACTER ES UN SIMBOLO
+           }else if(checarAlfabeto(alfabetoSimbolos , caracter) && (caracter == '>') || (caracter == '<') || (caracter == '=')){
+                estado = '2';
+               //AGREGAR EL CARACTER EN ARRAY CADENA
+               concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
 
-       // printf(tokenCaracter);
+                obtenerRelacionales();
 
+                 //ESTRUCTURA DE TIPO TOKEN
 
+                TOKEN token;
+                token.tipoToken = simr;
+                strcpy(token.lexema, tokenCaracter);
 
-         for(int i = 0; i <= 11; i++){
+                token.valor= 0;
 
+                //INSERTARLO EN LA LISTA ENLAZADA
+                insertar(token);
 
-          // VERIFICA SI ES UNA PALABRA RESERVADA
-            result = strcmp(token.lexema,palabrasRes[i]);
+            //CHECAR SI CARACTER PUEDE SER UNA CADENA
+           }else if(checarAlfabeto(alfabetoCadena , caracter)){
+                estado = '2';
 
-              if(result == 0){
-                   token.tipoToken = palres;
+                //AGREGAR EL CARACTER EN ARRAY CADENA
+                concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
 
-              }
+                obtenerCadena();
 
-         }
+                 //ESTRUCTURA DE TIPO TOKEN
+                TOKEN token;
+                token.tipoToken = cad;
+                strcpy(token.lexema, tokenCaracter);
+                token.valor= 0;
 
-         //INSERTARLO EN LA LISTA ENLAZADA
-       insertar(token);
+                //INSERTARLO EN LA LISTA ENLAZADA
+                insertar(token);
 
+            //CHECAR SI CARACTER ES UN DIGITO
+           }else if(checarAlfabeto(alfabetoLogicos , caracter)){
+                estado = '2';
 
 
+                //AGREGAR EL CARACTER EN ARRAY CADENA
+                concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
 
-       }
+                obtenerLogicos();
 
-         else if(checarAlfabeto(alfabetoSimbolos , caracter) && (caracter == '>') || (caracter == '<') || (caracter == '=')){
-            estado = '2';
-            printf("%c",'\n');
-        //AGREGAR EL CARACTER EN ARRAY CADENA
-        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
+                //ESTRUCTURA DE TIPO TOKEN
+                //ESTA EN PRUEBAS NO FUNCIONAL
+                TOKEN token;
+                token.tipoToken = siml;
+                strcpy(token.lexema, tokenCaracter);
+                token.valor= 0;
 
+                //INSERTARLO EN LA LISTA ENLAZADA
+                insertar(token);
 
-        obtenerRelacionales();
+            //CHECAR SI CARRACTER ES UN DIJITO
+           }else if(checarAlfabeto(alfabetoSimbolos , caracter)){
+                estado = '2';
+                //AGREGAR EL CARACTER EN ARRAY CADENA
+                concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
 
-         //ESTRUCTURA DE TIPO TOKEN
-        //ESTA EN PRUEBAS NO FUNCIONAL
+                 //ESTRUCTURA DE TIPO TOKEN
 
-        Token token;
-        token.tipoToken = sim;
-        token.lexema = tokenCaracter;
-        token.valor= 0;
+                TOKEN token;
+                token.tipoToken = sim;
+                strcpy(token.lexema, tokenCaracter);
 
-        printf(token.lexema);
-        //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token);
+                token.valor= 0;
 
-       }
 
- else if(checarAlfabeto(alfabetoCadena , caracter)){
-            estado = '2';
-            printf("%c",'\n');
+                //INSERTARLO EN LA LISTA ENLAZADA
+                insertar(token);
 
+            //CHECAR SI CARACTER ES UN DIGITO
+           }else if(checarAlfabeto(alfabetoNumeros , caracter)){
+                estado = '2';
 
-        //AGREGAR EL CARACTER EN ARRAY CADENA
-        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
+                //AGREGAR EL CARACTER EN ARRAY CADENA
+                concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
 
+                obtenerDigitos();
 
-        obtenerCadena();
+                //ESTRUCTURA DE TIPO TOKEN
+                TOKEN token;
+                token.tipoToken = num;
+                strcpy(token.lexema, tokenCaracter);
+                token.valor=strtol(tokenCaracter, NULL, 10);
 
-         //ESTRUCTURA DE TIPO TOKEN
-        //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token;
-        token.tipoToken = sim;
-        token.lexema = tokenCaracter;
-        token.valor= 0;
+                //INSERTARLO EN LA LISTA ENLAZADA
+                insertar(token);
 
-        printf(token.lexema);
+           }
 
-        //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token);
-       }
+        } //FIN DE WHILE QUE RECORRE ARCHIVO DE TEXTO
 
+    }//FIN DE
 
-         //CHECAR SI CARACTER ES UN DIGITO
-       else if(checarAlfabeto(alfabetoLogicos , caracter)){
-            estado = '2';
-
-            printf("%c",'\n');
-
-            //AGREGAR EL CARACTER EN ARRAY CADENA
-        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
-
-        obtenerLogicos();
-
-        //ESTRUCTURA DE TIPO TOKEN
-        //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token;
-        token.tipoToken = num;
-        token.lexema = tokenCaracter;
-        token.valor= 0;
-
-        printf(token.lexema);
-
-        //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token);
-
-
-       }
-
-
-       //CHECAR SI CARRACTER ES UN DIJITO
-       else if(checarAlfabeto(alfabetoSimbolos , caracter)){
-            estado = '2';
-            printf("%c",'\n');
-        //AGREGAR EL CARACTER EN ARRAY CADENA
-        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
-
-
-
-         //ESTRUCTURA DE TIPO TOKEN
-        //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token;
-        token.tipoToken = sim;
-        token.lexema = tokenCaracter;
-        token.valor= 0;
-
-        printf(token.lexema);
-        //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token);
-        //printf(tokenCaracter);
-
-       }
-
-
-
-
-
-       //CHECAR SI CARACTER ES UN DIGITO
-       else if(checarAlfabeto(alfabetoNumeros , caracter)){
-            estado = '2';
-            printf("%c",'\n');
-
-            //AGREGAR EL CARACTER EN ARRAY CADENA
-        concatenarCharEnString(); //PARAMETRO COMO VARIABLE GLOBAL (caracter)
-
-        obtenerDigitos();
-
-        //ESTRUCTURA DE TIPO TOKEN
-        //ESTA EN PRUEBAS NO FUNCIONAL
-        Token token;
-        token.tipoToken = num;
-        token.lexema = tokenCaracter;
-        token.valor= 0;
-
-        printf(token.lexema);
-
-
-        //INSERTARLO EN LA LISTA ENLAZADA
-        insertar(token);
-       }
-
-
-
-    }
-
-}
-
-
-
+    //RECORRER LA LISTA ENLAZADA Y MUESTRA LOS DATOS
+    ImprimirLista();
 
 return 0;
-}
+}//FIN DE MAIN
 
 
 
@@ -351,13 +289,10 @@ bool checarAlfabeto(char alfabeto[] , char caracter){
     return false;
 }
 
-//FUNCION AUTOMATA PARA SIMBOLOS
+
 void obtenerRelacionales(){
 
-
-
-          //WHILE QUE RECORRE ARCHIVO CARACTER POR CARACTER
-
+    //WHILE QUE RECORRE ARCHIVO CARACTER POR CARACTER
     while(feof(archivo) == 0 && estado == '1' || estado == '2'){
         caracter=fgetc(archivo); //VARIABLE ENCARGADA DE OBTENER CARACTER QUE ENTRO
 
@@ -393,7 +328,6 @@ void obtenerSimbolos(){
 }
 
 
-//FUNCION AUTOMATA PARA SIMBOLOS
 void obtenerLogicos(){
 
           //WHILE QUE RECORRE ARCHIVO CARACTER POR CARACTER
@@ -430,17 +364,14 @@ void obtenerCadena(){
 
             estado = '3';
              VieneDeEstadoAceptacion = true;
-
         }
-
-
     }
 
 
 }
 
 //FUNCION AUTOMATA PARA OBTENER DIGITOS
-    void obtenerDigitos(){
+void obtenerDigitos(){
 
          //WHILE QUE RECORRE ARCHIVO CARACTER POR CARACTER
 
@@ -457,7 +388,7 @@ void obtenerCadena(){
             VieneDeEstadoAceptacion = true;
         }
     }
-    }
+}
 
 //FUNCION AUTOMATA PARA OBTENER IDENTIFICADOR O PALABRA RESERVADA
 void obtenerIdentificador(){
@@ -482,7 +413,7 @@ void obtenerIdentificador(){
     }
 }
 
-//FUNCION PARA CONCATENAR CHAR EN STRING
+
 void concatenarCharEnString(){ //UTILIZA VARIABLES GLOBALES (pToken , caracter)
      *pToken = caracter;
       pToken++;
@@ -490,7 +421,7 @@ void concatenarCharEnString(){ //UTILIZA VARIABLES GLOBALES (pToken , caracter)
 
 
 
-//LIMPIAR ARRAY CADENA
+
 void limpiarArrayCadena(){ //UTILIZA VARIABLE GLOBAL (tokenCaracter)
     int cont = 0;
 while(cont < 50){
@@ -500,42 +431,73 @@ while(cont < 50){
 
 }
 
+NODO* CrearNodo(TOKEN token){
+    NODO *nuevo = NULL;
+
+    nuevo = (NODO*)malloc(sizeof(NODO));
+
+    if(nuevo != NULL){
+        nuevo->info = token;
+        nuevo->der = NULL;
+        nuevo->izq = NULL;
+    }
+
+    return nuevo;
+
+}
+
 //LISTA
-void insertar(struct Token *token)
-{
-    //printf();
-
-
-
-    struct nodo *nuevo;
-
-    nuevo = malloc(sizeof(struct nodo));
-
-
-    nuevo->info = token;
-    nuevo->izq = NULL;
-    nuevo->der = NULL;
+void insertar(struct Token token){
+    NODO *nuevo = NULL;
+    nuevo = CrearNodo(token);
 
     if(raiz == NULL){
-
-    raiz = nuevo;
-    actual = nuevo;
-
-
-
-
+        raiz = nuevo;
+        actual = nuevo;
+   }else{
+        nuevo->izq = actual;
+        actual->der = nuevo;
+        actual = nuevo;
    }
-
-    else{
-
-    nuevo->izq = actual;
-    actual->der = nuevo;
-    actual = nuevo;
+}
 
 
-   }
 
 
+void ImprimirLista(){
+    printf("\n");
+    actual = raiz;
+    printf("\n");
+    printf("----------LISTA ENLAZADA----------");
+    printf("\n");
+	if(raiz!=NULL){
+		while(actual != NULL){
+			printf("\n-------STRUCT TOKEN------\n");
+			printf(actual->info.lexema);
+			printf("\n");
+			printf("[%d]",actual->info.tipoToken);
+			printf("\n");
+			printf("[%d]",actual->info.valor);
+			printf("\n");
+			printf("-------FIN STRUCT TOKEN------");
+			actual = actual->der;
+		}
+	}else{
+		printf("\n La lista se encuentra vacia\n\n");
+	}
+}
+
+void ImprimirListaRev(){
+     //RECORREMOS HASTA YEGAR A LA ULTIMA POSICION
+     while(actual->der != NULL){
+        actual = actual->der;
+    }
+
+    while(actual != NULL){
+        printf("%c",'\n');
+        printf(actual->info.lexema);
+        actual = actual->izq;
+    }
 }
 
 
